@@ -1,0 +1,79 @@
+version: 1.0.0
+
+info:
+  title: Silver — Rideflow Rider App Events
+  target_layer: silver
+  table_name: '{silver_layer}_rideflow_rider_app_events'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: event_id
+    type: string
+    required: true
+  - name: rider_id
+    type: string
+    required: false
+  - name: device_id
+    type: string
+    required: false
+    pii: true
+    classification: device_id
+    description: Personal data (device_id), not masked.
+  - name: ip_address
+    type: string
+    required: false
+    pii: true
+    classification: ip_address
+    description: Personal data (ip_address), not masked.
+  - name: event_name
+    type: string
+    required: false
+  - name: screen_name
+    type: string
+    required: false
+  - name: event_timestamp
+    type: timestamp
+    required: false
+  - name: app_version
+    type: string
+    required: false
+  - name: platform
+    type: string
+    required: false
+  - name: city_code
+    type: string
+    required: false
+  - name: event_properties_json
+    type: string
+    required: false
+
+primary_key:
+- event_id
+
+quality:
+  row_rules:
+  - name: event_id_not_null
+    sql: event_id IS NOT NULL
+    category: completeness
+    description: event_id is always present (never null).
+
+transformations:
+- deduplicate:
+    by:
+    - event_id
+    sort_by:
+    - event_timestamp
+    order: desc
+
+dataset: silver_rideflow_rider_app_events
+
+source:
+  type: table
+  path: table:{domain_catalog}.{bronze_layer}_rideflow_rider_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}.lakelogic_run_log'

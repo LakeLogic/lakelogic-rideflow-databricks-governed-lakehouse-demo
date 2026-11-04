@@ -1,0 +1,109 @@
+version: 1.0.0
+
+info:
+  title: Gold — Fact Rider App Events
+  target_layer: gold
+  description: 'grain: one row per rider app event'
+  table_name: '{gold_layer}_fact_rider_app_events'
+  system: rideflow
+  domain: marketplace
+
+model:
+  fields:
+  - name: event_id
+    type: string
+    required: true
+  - name: rider_id
+    type: string
+    required: false
+  - name: device_id
+    type: string
+    required: false
+    pii: true
+    classification: device_id
+  - name: ip_address
+    type: string
+    required: false
+    pii: true
+    classification: ip_address
+  - name: event_name
+    type: string
+    required: false
+  - name: screen_name
+    type: string
+    required: false
+  - name: event_timestamp
+    type: timestamp
+    required: false
+  - name: app_version
+    type: string
+    required: false
+  - name: platform
+    type: string
+    required: false
+  - name: city_code
+    type: string
+    required: false
+  - name: event_properties_json
+    type: string
+    required: false
+  - name: event_date
+    type: date
+    required: false
+    description: 'Partition column: the calendar date of `event_timestamp`.'
+  - name: system
+    type: string
+    required: true
+    description: Source system this row came from
+
+dataset: gold_fact_rider_app_events
+
+primary_key:
+- event_id
+
+quality:
+  dataset_rules:
+  - unique:
+      columns:
+      - event_id
+      name: event_id_unique
+      category: uniqueness
+      description: No two rows share the same event_id.
+
+transformations:
+- phase: pre
+  sql: |-
+    SELECT
+      r.event_id,
+      r.rider_id,
+      r.device_id,
+      r.ip_address,
+      r.event_name,
+      r.screen_name,
+      r.event_timestamp,
+      r.app_version,
+      r.platform,
+      r.city_code,
+      r.event_properties_json,
+      CAST(r.event_timestamp AS DATE) AS event_date
+    FROM source r
+- phase: pre
+  derive:
+    field: system
+    sql: '''rideflow'''
+
+materialization:
+  strategy: append
+  fact:
+    type: factless
+  partition_by:
+  - event_date
+
+source:
+  type: table
+  path: table:{domain_catalog}.{silver_layer}_rideflow_rider_app_events
+  load_mode: incremental
+  watermark_field: _lakelogic_processed_at
+
+metadata:
+  run_log_table: '{domain_catalog}.lakelogic_run_log'

@@ -1,0 +1,9 @@
+# Written by LakeLogic on every delivery. It names the LakeLogic project this repository
+# was delivered from, so "Upgrade a LakeLogic estate" can continue that project.
+# It holds no secret. Keep it, or the next upgrade starts a new project.
+schema: lakelogic.project/v1
+project_id: proj-53f23128939b43b7
+project_name: RideFlow Drivers & Trips
+revision: chv1:15af0784547b52c97035f962fe77301696cf100be0a2ebc62db749916233b9e3
+seal: sha256:a9f8f110281d3c202fe69d968b58e5ecac8a8c5a2980d5e55bf775f86f4848fd
+snapshot: snap-aff8243e11c14b4a

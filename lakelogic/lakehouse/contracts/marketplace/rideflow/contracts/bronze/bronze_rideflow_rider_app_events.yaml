@@ -1,0 +1,56 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Rider App Events
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_rider_app_events'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: event_id
+    type: string
+  - name: rider_id
+    type: string
+  - name: device_id
+    type: string
+    pii: true
+    classification: device_id
+    description: Personal data (device_id), not masked.
+  - name: ip_address
+    type: string
+    pii: true
+    classification: ip_address
+    description: Personal data (ip_address), not masked.
+  - name: event_name
+    type: string
+  - name: screen_name
+    type: string
+  - name: event_timestamp
+    type: string
+  - name: app_version
+    type: string
+  - name: platform
+    type: string
+  - name: city_code
+    type: string
+  - name: event_properties_json
+    type: string
+
+source:
+  type: landing
+  path: '{landing_root}/rider_app_events'
+  format: json
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- event_id
+
+metadata:
+  run_log_table: '{domain_catalog}.lakelogic_run_log'
+
+dataset: bronze_rideflow_rider_app_events

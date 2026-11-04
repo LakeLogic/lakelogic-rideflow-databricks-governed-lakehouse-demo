@@ -1,0 +1,53 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Driver Telemetry
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_driver_telemetry'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: telemetry_id
+    type: string
+  - name: driver_id
+    type: string
+  - name: gps_lat
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Personal data (gps_coordinate), not masked.
+  - name: gps_lng
+    type: Float64
+    pii: true
+    classification: gps_coordinate
+    description: Personal data (gps_coordinate), not masked.
+  - name: speed_kmh
+    type: Float64
+  - name: heading
+    type: string
+  - name: accuracy_meters
+    type: string
+  - name: trip_id
+    type: string
+  - name: status
+    type: string
+  - name: city_code
+    type: string
+  - name: timestamp
+    type: string
+
+source:
+  type: stream
+  path: '{landing_root}/driver_telemetry'
+  format: json
+  options:
+    kind: files
+    checkpoint: '{log_root}/_checkpoints/driver_telemetry'
+    trigger: available_now
+
+primary_key:
+- telemetry_id
+
+dataset: bronze_rideflow_driver_telemetry

@@ -1,0 +1,82 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Rideflow Driver Profiles
+  target_layer: bronze
+  table_name: '{bronze_layer}_rideflow_driver_profiles'
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: driver_id
+    type: string
+  - name: name
+    type: string
+    pii: true
+    classification: person_name
+    description: Personal data (person_name), not masked.
+  - name: email
+    type: string
+    pii: true
+    classification: email
+    description: Personal data (email), not masked.
+  - name: phone
+    type: string
+    pii: true
+    classification: phone
+    description: Personal data (phone), not masked.
+  - name: date_of_birth
+    type: string
+    pii: true
+    classification: date_of_birth
+    description: Personal data (date_of_birth), not masked.
+  - name: home_address
+    type: string
+    pii: true
+    classification: postal_address
+    description: Personal data (postal_address), not masked.
+  - name: licence_number
+    type: string
+    pii: true
+    classification: licence_id
+    description: Personal data (licence_id), not masked.
+  - name: licence_plate
+    type: string
+    pii: true
+    classification: licence_plate
+    description: Personal data (licence_plate), not masked.
+  - name: vehicle_type
+    type: string
+  - name: bank_account_last_four
+    type: string
+    sensitive: true
+    classification: financial_account
+    description: Confidential (financial_account), not masked.
+  - name: city_code
+    type: string
+  - name: signup_date
+    type: string
+  - name: status
+    type: string
+  - name: rating
+    type: Float64
+  - name: updated_at
+    type: string
+
+source:
+  type: landing
+  path: '{landing_root}/driver_profiles'
+  format: csv
+  partition:
+    format: y_%Y/m_%m/d_%d/h_%H
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+primary_key:
+- driver_id
+
+metadata:
+  run_log_table: '{domain_catalog}.lakelogic_run_log'
+
+dataset: bronze_rideflow_driver_profiles

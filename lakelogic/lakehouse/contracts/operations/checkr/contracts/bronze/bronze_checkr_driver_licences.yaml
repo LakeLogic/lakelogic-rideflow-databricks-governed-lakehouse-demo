@@ -1,0 +1,67 @@
+version: 1.0.0
+
+info:
+  title: Bronze — Checkr Driver Licences
+  target_layer: bronze
+  table_name: '{bronze_layer}_checkr_driver_licences'
+  domain: operations
+  system: checkr
+
+model:
+  fields:
+  - name: file_path
+    type: string
+    description: The document this row was extracted from.
+  - name: name
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Name:\s*([^\n]+)
+    description: Full name of the licence holder.
+    pii: true
+    classification: person_name
+  - name: licence_no
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Licence No:\s*([^\n]+)
+    description: Driver licence number.
+    pii: true
+    classification: licence_id
+  - name: dob
+    type: date
+    extraction_task: metadata
+    extraction_examples:
+    - DOB:\s*(\d{2}-\d{2}-\d{4})
+    description: Date of birth of the licence holder in ISO format.
+    pii: true
+    classification: date_of_birth
+  - name: exp
+    type: date
+    extraction_task: metadata
+    extraction_examples:
+    - EXP:\s*(\d{2}-\d{2}-\d{4})
+    description: Expiration date of the licence in ISO format.
+  - name: classes
+    type: string
+    extraction_task: metadata
+    extraction_examples:
+    - Classes:\s*([^\n]+)
+    description: Driving classes permitted by the licence.
+
+source:
+  type: landing
+  path: '{landing_root}/driver_licences/**/*.pdf'
+  format: pdf
+  partition:
+    format: y_%Y/m_%m/d_%d
+  load_mode: incremental
+  watermark_strategy: pipeline_log
+
+metadata:
+  run_log_table: '{domain_catalog}.lakelogic_run_log'
+
+dataset: bronze_checkr_driver_licences
+
+extraction:
+  provider: document
