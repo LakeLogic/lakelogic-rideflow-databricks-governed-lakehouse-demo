@@ -1,0 +1,74 @@
+dataset: driver_profiles
+
+version: 1.0.0
+
+info:
+  title: driver_profiles
+  table_name: driver_profiles
+  description: Drafted from a data profile of landing_marketplace/rideflow/driver_profiles (800 rows read
+    on azure adls gen2 demo). The quality rules are the ones agreed in its rule set.
+  target_layer: bronze
+  domain: marketplace
+  system: rideflow
+
+model:
+  fields:
+  - name: driver_id
+    type: string
+  - name: name
+    type: string
+  - name: email
+    type: string
+  - name: phone
+    type: string
+  - name: date_of_birth
+    type: date
+  - name: home_address
+    type: string
+  - name: licence_number
+    type: string
+  - name: licence_plate
+    type: string
+  - name: vehicle_type
+    type: string
+  - name: bank_account_last_four
+    type: string
+  - name: city_code
+    type: string
+  - name: signup_date
+    type: date
+  - name: status
+    type: string
+  - name: rating
+    type: double
+  - name: updated_at
+    type: timestamp
+
+source:
+  type: landing
+  path: '{landing_root}/landing_marketplace/rideflow/driver_profiles'
+
+quality:
+  row_rules:
+  - name: driver_id_required
+    category: completeness
+    severity: error
+    sql: driver_id IS NOT NULL
+  - name: status_required
+    category: completeness
+    severity: error
+    sql: status IS NOT NULL
+  - name: status_values
+    category: validity
+    severity: error
+    sql: status IS NULL OR status IN ('active', 'deleted', 'inactive', 'pending', 'suspended')
+  - name: rating_range
+    category: validity
+    severity: error
+    sql: rating IS NULL OR TRY_CAST(rating AS DOUBLE) BETWEEN 1 AND 5
+  dataset_rules:
+  - unique:
+    - driver_id
+    name: driver_id_unique
+    category: uniqueness
+    severity: error
